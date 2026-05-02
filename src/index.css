@@ -8,6 +8,8 @@
 
 :root {
   --paper: #f8f6f1;
+  --bg: #f5f3ee;
+  --bg-card: #ffffff;
   --ink: #111111;
   --ink-light: #555555;
   --ink-faint: #999999;
@@ -18,6 +20,22 @@
   --accent-event: #777777;
   --priority-bg: #111111;
   --priority-text: #f8f6f1;
+
+  /* Type colors */
+  --placement: #e8622a;
+  --placement-bg: rgba(232, 98, 42, 0.08);
+  --placement-border: rgba(232, 98, 42, 0.2);
+  --result: #0e7c6b;
+  --result-bg: rgba(14, 124, 107, 0.08);
+  --result-border: rgba(14, 124, 107, 0.2);
+  --event: #6b48c8;
+  --event-bg: rgba(107, 72, 200, 0.08);
+  --event-border: rgba(107, 72, 200, 0.2);
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+
   --font-display: 'Playfair Display', Georgia, serif;
   --font-body: 'DM Sans', sans-serif;
 }
