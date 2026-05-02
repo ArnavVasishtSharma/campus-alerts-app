@@ -1,30 +1,30 @@
 import React from 'react'
-import { Box, Typography } from '@mui/material'
+import {
+  Box, FormControl, InputLabel, Select, MenuItem,
+  TextField, Typography,
+} from '@mui/material'
 import { Log } from '../utils/logger'
 
-const FILTER_OPTIONS = [
-  { value: 'all', label: 'All' },
-  { value: 'Placement', label: 'Placement' },
-  { value: 'Result', label: 'Result' },
-  { value: 'Event', label: 'Event' },
+const TYPE_OPTIONS = [
+  { value: 'all', label: 'All Types' },
+  { value: 'placement', label: 'Placement' },
+  { value: 'result', label: 'Result' },
+  { value: 'event', label: 'Event' },
 ]
 
-/**
- * FilterBar
- * Horizontal row of pill-style type filters + Top-N input.
- * Matches the editorial / typographic design system.
- */
 export default function FilterBar({ filterType, onFilterChange, topN, onTopNChange }) {
-
-  const handleFilter = (val) => {
-    Log('FilterBar.handleFilter', 'INFO', 'filter', `Filter changed to "${val}"`)
+  const handleTypeChange = (e) => {
+    const val = e.target.value
+    Log('FilterBar.handleTypeChange', 'INFO', 'filter', `Filter changed to: ${val}`)
     onFilterChange(val)
   }
 
-  const handleTopN = (e) => {
-    const n = Math.max(1, Math.min(100, Number(e.target.value) || 1))
-    Log('FilterBar.handleTopN', 'INFO', 'filter', `Top-N changed to ${n}`)
-    onTopNChange(n)
+  const handleNChange = (e) => {
+    const val = parseInt(e.target.value, 10)
+    if (!isNaN(val) && val > 0) {
+      Log('FilterBar.handleNChange', 'INFO', 'filter', `Top N changed to: ${val}`)
+      onTopNChange(val)
+    }
   }
 
   return (
@@ -32,91 +32,93 @@ export default function FilterBar({ filterType, onFilterChange, topN, onTopNChan
       sx={{
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'space-between',
+        gap: { xs: 1.5, sm: 2 },
         flexWrap: 'wrap',
-        gap: 2,
-        py: 2,
-        borderBottom: '1px solid var(--border-light)',
+        py: 2.5,
+        borderBottom: '1px solid',
+        borderColor: 'divider',
       }}
     >
-      {/* ── Type pills ── */}
-      <Box sx={{ display: 'flex', gap: 0.75 }}>
-        {FILTER_OPTIONS.map(({ value, label }) => {
-          const isActive = filterType === value
-          return (
-            <Box
-              key={value}
-              onClick={() => handleFilter(value)}
-              sx={{
-                px: 2,
-                py: 0.6,
-                fontSize: '11px',
-                fontFamily: 'var(--font-body)',
-                fontWeight: isActive ? 600 : 400,
-                letterSpacing: '0.08em',
-                textTransform: 'uppercase',
-                color: isActive ? 'var(--paper)' : 'var(--ink-faint)',
-                backgroundColor: isActive ? 'var(--ink)' : 'transparent',
-                border: isActive ? '1px solid var(--ink)' : '1px solid var(--border)',
-                cursor: 'pointer',
-                transition: 'all 0.18s ease',
-                userSelect: 'none',
-                '&:hover': {
-                  color: isActive ? 'var(--paper)' : 'var(--ink)',
-                  borderColor: 'var(--ink)',
-                },
-              }}
-            >
-              {label}
-            </Box>
-          )
-        })}
-      </Box>
+      {/* Filter label */}
+      <Typography
+        sx={{
+          fontFamily: 'var(--font-body)',
+          fontSize: '12px',
+          fontWeight: 500,
+          letterSpacing: '0.1em',
+          textTransform: 'uppercase',
+          color: 'var(--ink-faint)',
+          mr: 0.5,
+        }}
+      >
+        Filter
+      </Typography>
 
-      {/* ── Top N control ── */}
+      {/* Type dropdown */}
+      <FormControl size="small" sx={{ minWidth: 140 }}>
+        <Select
+          value={filterType}
+          onChange={handleTypeChange}
+          displayEmpty
+          sx={{
+            fontSize: '13px',
+            fontFamily: 'var(--font-body)',
+            '& .MuiSelect-select': { py: 1 },
+          }}
+        >
+          {TYPE_OPTIONS.map((opt) => (
+            <MenuItem
+              key={opt.value}
+              value={opt.value}
+              sx={{ fontFamily: 'var(--font-body)', fontSize: '13px' }}
+            >
+              {opt.label}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+
+      {/* Divider */}
+      <Box sx={{ width: '1px', height: '24px', backgroundColor: 'divider', display: { xs: 'none', sm: 'block' } }} />
+
+      {/* Top N */}
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
         <Typography
           sx={{
             fontFamily: 'var(--font-body)',
-            fontSize: '10px',
+            fontSize: '12px',
+            fontWeight: 500,
             letterSpacing: '0.1em',
             textTransform: 'uppercase',
             color: 'var(--ink-faint)',
-            fontWeight: 500,
           }}
         >
           Top
         </Typography>
-        <Box
-          component="input"
+        <TextField
           type="number"
-          min={1}
-          max={100}
           value={topN}
-          onChange={handleTopN}
+          onChange={handleNChange}
+          inputProps={{ min: 1, max: 100, style: { padding: '7px 10px', fontFamily: 'var(--font-body)', fontSize: '13px', width: '48px', textAlign: 'center' } }}
+          size="small"
           sx={{
-            width: '48px',
-            padding: '4px 8px',
+            '& .MuiOutlinedInput-root': {
+              '& input': { textAlign: 'center' },
+            },
+          }}
+        />
+        <Typography
+          sx={{
             fontFamily: 'var(--font-body)',
             fontSize: '12px',
             fontWeight: 500,
-            color: 'var(--ink)',
-            backgroundColor: 'transparent',
-            border: '1px solid var(--border)',
-            textAlign: 'center',
-            outline: 'none',
-            transition: 'border-color 0.2s ease',
-            '&:focus': {
-              borderColor: 'var(--ink)',
-            },
-            /* Hide number spinners */
-            '&::-webkit-inner-spin-button, &::-webkit-outer-spin-button': {
-              WebkitAppearance: 'none',
-              margin: 0,
-            },
-            MozAppearance: 'textfield',
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
+            color: 'var(--ink-faint)',
           }}
-        />
+        >
+          Priority
+        </Typography>
       </Box>
     </Box>
   )
