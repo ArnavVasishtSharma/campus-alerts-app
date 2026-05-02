@@ -170,11 +170,12 @@ This reduces the problem from O(n log n) to **O(n log k)** where k ≪ n.
 ## 10. File Structure
 
 ```
+logging_middleware/
+└── index.js                          # Re-exports Log from src/utils/logger.js
 src/
 ├── api/
-│   └── notifications.js              # API fetch layer
+│   └── notifications.js              # API fetch layer + register + auth
 ├── components/
-│   ├── index.js                      # Barrel export
 │   ├── NotificationCard.jsx          # Card component
 │   ├── NotificationCard.css          # Card styles
 │   ├── NotificationCardSkeleton.jsx  # Loading skeleton
@@ -182,12 +183,13 @@ src/
 │   ├── PaginationBar.jsx             # Pagination controls
 │   └── ErrorBanner.jsx               # Error display
 ├── pages/
-│   ├── Home.jsx                      # Main page
-│   └── Home.css                      # Page styles
+│   ├── Home.jsx                      # Main dashboard
+│   ├── Home.css                      # Page styles
+│   └── Register.jsx                  # One-time registration
 ├── utils/
 │   ├── priority.js                   # Priority sorting logic
 │   └── logger.js                     # Centralized logging
-├── App.jsx                           # App entry
+├── App.jsx                           # App entry + routing
 ├── main.jsx                          # React root
 └── index.css                         # Global styles
 ```
