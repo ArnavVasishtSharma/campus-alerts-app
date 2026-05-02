@@ -1,7 +1,8 @@
 import { Log } from '../utils/logger'
 
-const BASE_URL = 'http://20.207.122.201/evaluation-service'
-const BEARER_TOKEN = 'your-bearer-token-here' // Replace with actual token
+// Use /api proxy in dev (Vite rewrites to http://20.207.122.201/evaluation-service)
+const BASE_URL = '/api'
+const ACCESS_CODE = 'QkbpxH'
 
 /**
  * Fetch notifications from the API
@@ -22,7 +23,9 @@ export async function fetchNotifications({ page = 1, limit = 10, type = '' } = {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${BEARER_TOKEN}`,
+        'Authorization': `Bearer ${ACCESS_CODE}`,
+        'access-code': ACCESS_CODE,
+        'X-Access-Code': ACCESS_CODE,
       },
     })
 
@@ -33,12 +36,15 @@ export async function fetchNotifications({ page = 1, limit = 10, type = '' } = {
     }
 
     const data = await response.json()
-    Log(stack, 'INFO', 'api', `Fetched ${data?.notifications?.length ?? 0} notifications successfully`, {
-      total: data?.total,
-      page: data?.page,
-    })
 
-    return data
+    // Normalise different response shapes
+    const items = data?.notifications ?? data?.data ?? (Array.isArray(data) ? data : [])
+    const total = data?.total ?? data?.count ?? items.length
+
+    Log(stack, 'INFO', 'api', `Fetched ${items.length} notifications successfully`, { total, page: data?.page })
+
+    // Always return a consistent shape
+    return { notifications: items, total, page: data?.page ?? page, limit: data?.limit ?? limit }
   } catch (error) {
     Log(stack, 'ERROR', 'api', `Failed to fetch notifications: ${error.message}`, error)
     throw error
@@ -54,7 +60,7 @@ export async function fetchAllNotifications() {
 
   try {
     const data = await fetchNotifications({ page: 1, limit: 1000 })
-    return data?.notifications ?? data?.data ?? []
+    return data?.notifications ?? []
   } catch (error) {
     Log(stack, 'ERROR', 'api', `Failed to fetch all notifications: ${error.message}`, error)
     throw error
