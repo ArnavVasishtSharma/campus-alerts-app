@@ -172,17 +172,22 @@ This reduces the problem from O(n log n) to **O(n log k)** where k ≪ n.
 ```
 src/
 ├── api/
-│   └── notifications.js       # API fetch layer
+│   └── notifications.js              # API fetch layer
 ├── components/
-│   ├── NotificationCard.jsx    # Card component
-│   └── NotificationCard.css    # Card styles
+│   ├── index.js                      # Barrel export
+│   ├── NotificationCard.jsx          # Card component
+│   ├── NotificationCard.css          # Card styles
+│   ├── NotificationCardSkeleton.jsx  # Loading skeleton
+│   ├── FilterBar.jsx                 # Type filter + Top-N
+│   ├── PaginationBar.jsx             # Pagination controls
+│   └── ErrorBanner.jsx               # Error display
 ├── pages/
-│   ├── Home.jsx                # Main page
-│   └── Home.css                # Page styles
+│   ├── Home.jsx                      # Main page
+│   └── Home.css                      # Page styles
 ├── utils/
-│   ├── priority.js             # Priority sorting logic
-│   └── logger.js               # Centralized logging
-├── App.jsx                     # App entry
-├── main.jsx                    # React root
-└── index.css                   # Global styles
+│   ├── priority.js                   # Priority sorting logic
+│   └── logger.js                     # Centralized logging
+├── App.jsx                           # App entry
+├── main.jsx                          # React root
+└── index.css                         # Global styles
 ```
