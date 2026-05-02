@@ -1,40 +1,74 @@
 /**
- * Priority weight mapping for notification types.
- * Placement (highest) > Result > Event (lowest).
- *
- * Scalability Note:
- *   For very large datasets (100k+ notifications), consider replacing the
- *   sort-based approach with a max-heap / priority queue (e.g. a binary heap)
- *   to achieve O(n log k) instead of O(n log n) where k = number of top items.
- *   Libraries like 'heap-js' or a custom MinHeap of size k can be used.
+ * Priority Utility
+ * Placement > Result > Event
+ * Same type → latest timestamp first
  */
-const priorityWeight = {
-  Placement: 3,
-  Result: 2,
-  Event: 1,
-};
+
+const PRIORITY_MAP = {
+  placement: 1,
+  result: 2,
+  event: 3,
+}
 
 /**
- * Return the top N notifications sorted by priority weight (desc),
- * then by timestamp (latest first) as a tiebreaker.
- *
- * @param {Array} notifications - Array of notification objects with Type and Timestamp.
- * @param {number} n - Number of top notifications to return (default 10).
- * @returns {Array} Top N prioritised notifications.
+ * Returns numeric priority for a notification type
  */
-export const getTopNotifications = (notifications, n = 10) => {
-  return notifications
-    .map((item) => ({
-      ...item,
-      weight: priorityWeight[item.Type] || 0,
-    }))
-    .sort((a, b) => {
-      // Primary sort: weight descending
-      if (b.weight !== a.weight) {
-        return b.weight - a.weight;
-      }
-      // Secondary sort: latest timestamp first
-      return new Date(b.Timestamp) - new Date(a.Timestamp);
-    })
-    .slice(0, n);
-};
+export function getTypePriority(type = '') {
+  return PRIORITY_MAP[type.toLowerCase()] ?? 99
+}
+
+/**
+ * Comparator for sorting notifications by priority rules:
+ * 1. Lower priority number = higher rank
+ * 2. Same type → sort by timestamp descending (latest first)
+ */
+export function priorityComparator(a, b) {
+  const pa = getTypePriority(a.type)
+  const pb = getTypePriority(b.type)
+
+  if (pa !== pb) return pa - pb
+
+  // Same type → latest timestamp first
+  const ta = new Date(a.timestamp || a.created_at || 0).getTime()
+  const tb = new Date(b.timestamp || b.created_at || 0).getTime()
+  return tb - ta
+}
+
+/**
+ * Returns top N notifications sorted by priority
+ */
+export function getTopPriorityNotifications(notifications = [], n = 10) {
+  return [...notifications].sort(priorityComparator).slice(0, n)
+}
+
+/**
+ * Returns label + color for a type
+ */
+export function getTypeStyle(type = '') {
+  switch (type.toLowerCase()) {
+    case 'placement':
+      return { label: 'Placement', color: '#111111', textColor: '#f8f6f1' }
+    case 'result':
+      return { label: 'Result', color: '#444444', textColor: '#f8f6f1' }
+    case 'event':
+      return { label: 'Event', color: '#888888', textColor: '#f8f6f1' }
+    default:
+      return { label: type || 'Unknown', color: '#aaaaaa', textColor: '#111111' }
+  }
+}
+
+/**
+ * Format a timestamp to a readable string
+ */
+export function formatDate(ts) {
+  if (!ts) return '—'
+  const d = new Date(ts)
+  if (isNaN(d)) return ts
+  return d.toLocaleString('en-IN', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
